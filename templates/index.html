@@ -1,0 +1,134 @@
+<html>
+<head>
+<title>Welcome Back!</title>
+<style>
+    table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    }
+    
+    td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+    }
+    
+    tr:nth-child(even) {
+    background-color: #dddddd;
+    }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<h1>
+    {% if account_type == 'admin' %}
+        Licensing Dashboard (Admin Access) - {{ current_user }}
+    {% else %}
+        Licensing Dashboard - {{ current_user }}
+    {% end %}
+</h1>
+<a href="/logout">logout</a>
+
+<h2>Paid License</h2>
+<table>
+    <tr>
+      <th>License Type</th>
+      <th>Number of License</th>
+    </tr>
+    {% for key in license_details %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ license_details[key] }}</td>
+    </tr>
+    {% end %}
+</table>
+
+<br><br>
+<h2>History</h2>
+<table>
+    <tr>
+        <th>Date Created</th>
+        <th>User</th>
+        <th>Action Type</th>
+        <th>Domain Name</th>
+        <th>Expiry Date</th>
+    </tr>
+    {% for history in history_details %}
+    <tr>
+        <td>{{ history['dateCreated'] }}</td>
+        <td>{{ history['username'] }}</td>
+        <td>{{ history['actionType'] }}</td>
+        <td>{{ history['domainName'] }}</td>
+        <td>{{ history['dateExpired'] }}</td>
+    </tr>
+    {% end %}
+</table>
+
+<br><br>
+<h2>POC License</h2>
+<table>
+    <tr>
+        <th>POC License credit left this month:</th>
+    </tr>
+    <tr>
+        <td>{{ user_counter }}</td>
+    </tr>
+    <form method="POST">
+    {% if account_type == 'admin' %}
+        <tr>
+            <td>Company Name: <input type="text" name="username" /></td>
+        </tr>
+        <tr>
+            <td>Domain Name: <input type="text" name="domain_name" /></td>
+        </tr>
+        <tr>
+            <td>Number of Days: <input type="text" name="number_of_days" /></td>
+        </tr>
+        <tr>
+            <td>
+                Select user: 
+                <select id="user_details" onchange="run({{ user_details }})">
+                <option hidden disabled selected value> -- select an option -- </option>
+                {% for index,user in enumerate(user_details) %}
+                    <option value="{{ index }}">{{ user['username'] }}</option>
+                    
+                {% end %}
+                <input type="hidden" name="target_username" value=""/>
+                </select>
+                <br>
+                POC Credit: <p id="poc_credit">-</p>
+                Credit to Add: <input type="text" name="increment_value" />
+            </td>
+        </tr>
+        <tr>
+            <input type="submit" formaction="/add_credit" value="Add Credit" />
+        </tr>
+    {% else %}
+        <tr>
+            <td>Domain Name: <input type="text" name="domain_name" /></td>
+        </tr>
+    {% end %}
+    <tr>
+        <input type="submit" formaction="/activation" value="Activate" />
+    </tr>
+    <tr>
+        <input type="submit" formaction="/extension" value="Extend POC Machine" />
+    </tr>
+    {% module xsrf_form_html() %}
+</form>
+</table>
+
+</body>
+</html>
+
+<script>
+    function run(user_details) {
+        var userIndex = document.getElementById("user_details").value;
+        document.getElementById("poc_credit").innerHTML = user_details[userIndex].pocLicenseCounter
+        document.getElementsByName("target_username")[0].value = user_details[userIndex].username
+    }
+</script>

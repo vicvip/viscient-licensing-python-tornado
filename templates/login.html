@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>Please Log In</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+<link href="../static/css/login.css" rel="stylesheet">
+</head>
+
+<body class="text-center">
+<form action="/login" method="POST" class="form-signin">
+    
+    <h1><span class="oi oi-lock-locked"></span></h1>
+    
+    <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
+    <h2 class="h5 mb-3 font-weight-normal">Viscient Licensing Portal</h2>
+
+    <label for="username" class="sr-only">Email address</label>
+    <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus> 
+
+    <label for="password" class="sr-only">Password</label>
+    <input type="password" id="password"  name="password" class="form-control" placeholder="Password" required>
+
+    <button class="btn btn-lg btn-primary btn-block" type="submit">SIGN IN</button>
+    <button class="btn btn-light" type="button" >Need Help?</button>
+    {% module xsrf_form_html() %}
+
+</form>
+</body>
+</html>
+
