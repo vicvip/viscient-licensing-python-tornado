@@ -58,8 +58,13 @@
                             <p class="card-title">credit(s)</p>
                         </div>
                         <div class="col col-lg-5 text-center">
+                            {% if user_counter == 0 %}
+                            <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#insufficientCreditModal">Activate</a>
+                            <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#insufficientCreditModal">Extend POC Machine</a>
+                            {% else %}
                             <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#activateModal">Activate</a>
                             <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#extendModal">Extend POC Machine</a>
+                            {% end %}
                             {% if account_type == 'admin' %}
                             <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#addCreditModal">Add Credit</a>
                             {% end %}
@@ -100,6 +105,7 @@
     </div>
 </div>
 
+{% if user_counter > 0 %}
 <div class="modal fade" id="activateModal" tabindex="-1" role="dialog" aria-labelledby="activateModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -187,6 +193,7 @@
         </div>
     </div>
 </div>
+{% end %}
 
 {% if account_type == 'admin' %}
 <!-- Necessary condition so that user won't be able to hack through the form -->
@@ -235,6 +242,25 @@
     </div>
 </div>
 {% end %}
+
+<div class="modal fade" id="insufficientCreditModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Insufficient Credit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Insufficient POC Credit left for this month. Please contact Viscient for a top-up.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+        </div>
+    </div>
+</div>
 
 
 
