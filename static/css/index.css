@@ -1,0 +1,37 @@
+.table-responsive   { overflow-y: scroll; height: 50em; }
+
+.navbar{
+    box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);
+    background-color: #15b2ad;
+    color: white;
+    margin-bottom: 1%;
+}
+
+.navbar .btn-outline-info {
+    color: white;
+    border-color: white;
+}
+
+.navbar .btn-outline-info:hover {
+    background-color: #15b2ad;
+    border-color: #15b2ad;
+}
+
+a[class|="btn btn-primary"]{
+    margin-bottom: 3%;
+    background-color: #15b2ad;
+    border-color: #15b2ad;
+}
+
+a[class|="btn btn-primary"]:hover{
+    margin-bottom: 3%;
+    background-color: #6befb8;
+    border-color: #6befb8;
+}
+
+div[class|="spinner-border text-secondary"]{
+    position: fixed;
+    display: none;
+}
+
+/* .table-responsive th { position: sticky; top: 0; } */

@@ -12,6 +12,10 @@ import json
 from tornado.httpclient import AsyncHTTPClient
 from tornado.options import define, options
 
+from datetime import datetime
+import pytz    
+import tzlocal 
+
 define("port", default=8888, help="run on the given port", type=int)
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -22,8 +26,16 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.get_secure_cookie("account_type")
 
     @staticmethod
-    def get_back_end_url(self):
-        return 'http://localhost:5000'
+    def get_back_end_url():
+        # return 'http://localhost:5000'
+        return 'https://viscient-licensing-py-flask.herokuapp.com'
+
+    @staticmethod
+    def convert_date_to_local(date):
+        local_timezone = tzlocal.get_localzone()
+        utc_time = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        local_time = utc_time.replace(tzinfo=pytz.utc).astimezone(local_timezone).strftime('%Y-%m-%dT%H:%M:%S')
+        return local_time
 
 class MainHandler(BaseHandler):
     @tornado.web.authenticated
@@ -42,7 +54,7 @@ class MainHandler(BaseHandler):
         #client = httpclient.HTTPClient()
         try:
             query_license_response = yield client.fetch(
-                'http://localhost:5000/licensing/query_licensing?username=test')
+                f'{self.get_back_end_url()}/licensing/query_licensing?username=test')
             deserealized_query_license_body = json.loads(query_license_response.body)
             responseCode = deserealized_query_license_body['statusCode']
             #if(responseCode is not 200):
@@ -51,11 +63,11 @@ class MainHandler(BaseHandler):
             license_details = deserealized_query_license_body['license']
             #print(deserealized_query_license_body['statusCode'])
         except Exception as e:
-            print(f'Server error with query_license: {e}')
+            print('Server error with query_license: ' + e)
         
         try:
             history_details_response = yield client.fetch(
-                f'http://localhost:5000/mongodbservice/history?username={username}&accountType={account_type}')
+                f'{self.get_back_end_url()}/mongodbservice/history?username={username}&accountType={account_type}')
             deserealized_history_details_body = json.loads(history_details_response.body)
             responseCode = deserealized_history_details_body['statusCode']
             #print(history_details_response.body)
@@ -63,13 +75,16 @@ class MainHandler(BaseHandler):
                 #handle this somehow...?
             
             history_details = deserealized_history_details_body['historyDetails']
+            for history in history_details:
+                history['dateCreated'] = self.convert_date_to_local(history['dateCreated'])
+                history['dateExpired'] = self.convert_date_to_local(history['dateExpired'])
             #print(history_details)
         except Exception as e:
-            print(f'Server error with history: {e}')
+            print('Server error with history:' + e)
 
         try:
             user_counter_response = yield client.fetch(
-                f'http://localhost:5000/mongodbservice/user_counter?username={username}')
+                f'{self.get_back_end_url()}/mongodbservice/user_counter?username={username}')
             deserealized_user_counter_body = json.loads(user_counter_response.body)
             responseCode = deserealized_user_counter_body['statusCode']
             #if(responseCode is not 200):
@@ -77,11 +92,11 @@ class MainHandler(BaseHandler):
             
             user_counter = deserealized_user_counter_body['poc_counter']
         except Exception as e:
-            print(f'Server error with history: {e}')
+            print('Server error with user counter: ' + e)
 
         if(account_type == 'admin'):
             try:
-                user_details_response = yield client.fetch('http://localhost:5000/mongodbservice/all_user')
+                user_details_response = yield client.fetch(f'{self.get_back_end_url()}/mongodbservice/all_user')
                 deserealized_user_details_body = json.loads(user_details_response.body)
                 responseCode = deserealized_user_details_body['statusCode']
                 #if(responseCode is not 200):
@@ -89,7 +104,7 @@ class MainHandler(BaseHandler):
                 
                 user_details = deserealized_user_details_body['userDetails']
             except:
-                 print(f'Server error with user details: {e}')
+                 print('Server error with user details:' + e)
 
         self.render('index.html', license_details=license_details, history_details=history_details, user_counter=user_counter, user_details=user_details, account_type=account_type)
 
@@ -100,7 +115,7 @@ class LoginHandler(BaseHandler):
         if incorrect and int(incorrect) > 20:
             self.write('<center>blocked</center>')
             return
-        self.render('login.html')
+        self.render('login.html', credential_validated=True)
 
     @tornado.gen.coroutine
     def post(self):
@@ -122,7 +137,7 @@ class LoginHandler(BaseHandler):
         responseCode = 404
         try:
             login_response = yield client.fetch(
-            'http://localhost:5000/mongodbservice/login', method='POST', body=body,
+            f'{self.get_back_end_url()}/mongodbservice/login', method='POST', body=body,
             headers={'Content-Type': 'application/json'}
             )
             deserealized_login_body = json.loads(login_response.body)
@@ -139,14 +154,15 @@ class LoginHandler(BaseHandler):
             self.set_secure_cookie("incorrect", "0")
             self.redirect(self.reverse_url("main"))
         else:
-            incorrect = self.get_secure_cookie("incorrect") or 0
-            increased = str(int(incorrect)+1)
+            # incorrect = self.get_secure_cookie("incorrect") or 0
+            # increased = str(int(incorrect)+1)
             self.clear_cookie("user")
-            self.set_secure_cookie("incorrect", increased)
-            self.write("""<center>
-                            Something Wrong With Your Data (%s)<br />
-                            <a href="/">Go Home</a>
-                          </center>""" % increased)
+            self.render('login.html', credential_validated=False)
+            # self.set_secure_cookie("incorrect", increased)
+            # self.write("""<center>
+            #                 Something Wrong With Your Data (%s)<br />
+            #                 <a href="/">Go Home</a>
+            #               </center>""" % increased)
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -172,7 +188,7 @@ class ActivationHandler(BaseHandler):
 
         try:
             activation_response = yield client.fetch(
-            'http://localhost:5000/licensing/activation', method='POST', body=body,
+            f'{self.get_back_end_url()}/licensing/activation', method='POST', body=body,
             headers={'Content-Type': 'application/json'}
             )
             #deserealized_activation_body = json.loads(activation_response.body)
@@ -202,12 +218,12 @@ class ExtensionHandler(BaseHandler):
 
         try:
             extension_response = yield client.fetch(
-            'http://localhost:5000/licensing/extension', method='POST', body=body,
+            f'{self.get_back_end_url()}/licensing/extension', method='POST', body=body,
             headers={'Content-Type': 'application/json'}
             )
             deserealized_extension_body = json.loads(extension_response.body)
             #responseCode = deserealized_activation_body['statusCode']
-            print(deserealized_extension_body)
+            #print(deserealized_extension_body)
         except Exception as e:
             print(f'Server error with extension: {e}')
             
@@ -222,7 +238,7 @@ class AddCreditHandler(BaseHandler):
         increment_value = tornado.escape.xhtml_escape(self.get_argument("increment_value")) 
         target_username = tornado.escape.xhtml_escape(self.get_argument("target_username"))
 
-        print(target_username)
+        #print(target_username)
         body = json.dumps({
             "username": target_username,
             "increment_value": int(increment_value)
@@ -230,12 +246,12 @@ class AddCreditHandler(BaseHandler):
 
         try:
             extension_response = yield client.fetch(
-            'http://localhost:5000/mongodbservice/increment_user_credit', method='POST', body=body,
+            f'{self.get_back_end_url()}/mongodbservice/increment_user_credit', method='POST', body=body,
             headers={'Content-Type': 'application/json'}
             )
             deserealized_extension_body = json.loads(extension_response.body)
             #responseCode = deserealized_activation_body['statusCode']
-            print(deserealized_extension_body)
+            #print(deserealized_extension_body)
         except Exception as e:
             print(f'Server error with extension: {e}')
 

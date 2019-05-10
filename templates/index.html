@@ -1,74 +1,244 @@
 <html>
 <head>
-<title>Welcome Back!</title>
-<style>
-    table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-    }
-    
-    td, th {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-    }
-    
-    tr:nth-child(even) {
-    background-color: #dddddd;
-    }
-    </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<title>Viscient Licensing Dashboard</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<link href="../static/css/index.css" rel="stylesheet" />
 </head>
 <body>
-<h1>
-    {% if account_type == 'admin' %}
-        Licensing Dashboard (Admin Access) - {{ current_user }}
-    {% else %}
-        Licensing Dashboard - {{ current_user }}
-    {% end %}
-</h1>
-<a href="/logout">logout</a>
 
-<h2>Paid License</h2>
-<table>
-    <tr>
-      <th>License Type</th>
-      <th>Number of License</th>
-    </tr>
-    {% for key in license_details %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ license_details[key] }}</td>
-    </tr>
-    {% end %}
-</table>
+<nav class="navbar navbar-expand-lg">
+    <h4>
+        {% if account_type == 'admin' %}
+            Licensing Dashboard (Admin Access) - {{ current_user }}
+        {% else %}
+            Licensing Dashboard - {{ current_user }}
+        {% end %}
+    </h4>
+    
+    <div class="collapse navbar-collapse" id="navbarSupportedContent"></div>
+    <a href="/logout">
+        <button class="btn btn-outline-info" type="button">Logout</button>
+    </a>
+    
+</nav>
 
-<br><br>
-<h2>History</h2>
-<table>
-    <tr>
-        <th>Date Created</th>
-        <th>User</th>
-        <th>Action Type</th>
-        <th>Domain Name</th>
-        <th>Expiry Date</th>
-    </tr>
-    {% for history in history_details %}
-    <tr>
-        <td>{{ history['dateCreated'] }}</td>
-        <td>{{ history['username'] }}</td>
-        <td>{{ history['actionType'] }}</td>
-        <td>{{ history['domainName'] }}</td>
-        <td>{{ history['dateExpired'] }}</td>
-    </tr>
-    {% end %}
-</table>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-4">
+            <h3>Paid License</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">License Type</th>
+                            <th scope="col">Number of License</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key in license_details %}
+                        <tr>
+                            <td>{{ key }}</td>
+                            <td>{{ license_details[key] }}</td>
+                        </tr>
+                        {% end %}
+                    </tbody>
+                </table>
 
-<br><br>
+            <h3>POC License</h3>
+            <div class="card" style="width: 100%;">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row">
+                        <div class="col text-center">
+                            <h6 class="card-title">Credit remaining this month:</h6>
+                            <h1 class="card-title">{{ user_counter }}</h1>
+                            <p class="card-title">credit(s)</p>
+                        </div>
+                        <div class="col col-lg-5 text-center">
+                            <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#activateModal">Activate</a>
+                            <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#extendModal">Extend POC Machine</a>
+                            {% if account_type == 'admin' %}
+                            <a class="btn btn-primary" role="button" href="#" data-toggle="modal" data-target="#addCreditModal">Add Credit</a>
+                            {% end %}
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <h3>History</h3>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date Created</th>
+                            <th>User</th>
+                            <th>Action Type</th>
+                            <th>Domain Name</th>
+                            <th>Expiry Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history in history_details %}
+                        <tr>
+                            <td>{{ history['dateCreated'] }}</td>
+                            <td>{{ history['username'] }}</td>
+                            <td>{{ history['actionType'] }}</td>
+                            <td>{{ history['domainName'] }}</td>
+                            <td>{{ history['dateExpired'] }}</td>
+                        </tr>
+                        {% end %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="activateModal" tabindex="-1" role="dialog" aria-labelledby="activateModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Domain Activation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" class="dialog-form">
+                {% if account_type == 'admin' %}
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" class="form-control" id="company_name" name="username" placeholder="Enter Company Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="domain_name">Domain Name</label>
+                    <input type="text" class="form-control" id="domain_name" name="domain_name" placeholder="Enter Domain Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="number_of_days">Number of Days to Expire</label>
+                    <input type="number" class="form-control" id="number_of_days" name="number_of_days" placeholder="Enter The Number of Days" required>
+                </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="domain_name">Domain Name</label>
+                        <input type="text" class="form-control" id="domain_name" name="domain_name" placeholder="Enter Domain Name" required>
+                    </div>
+                {% end %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <input type="submit" class="btn btn-info" formaction="/activation" value="Activate" />
+                    <div class="spinner-border text-secondary" role="status" style="margin-left: -1.75em !important;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                {% module xsrf_form_html() %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="extendModal" tabindex="-1" role="dialog" aria-labelledby="extendModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Domain Extension</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" class="dialog-form">
+                {% if account_type == 'admin' %}
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" class="form-control" id="company_name" name="username" placeholder="Enter Company Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="domain_name">Domain Name</label>
+                    <input type="text" class="form-control" id="domain_name" name="domain_name" placeholder="Enter Domain Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="number_of_days">Number of Days to Expire</label>
+                    <input type="number" class="form-control" id="number_of_days" name="number_of_days" placeholder="Enter The Number of Days" required>
+                </div>
+                {% else %}
+                    <div class="form-group">
+                        <label for="domain_name">Domain Name</label>
+                        <input type="text" class="form-control" id="domain_name" name="domain_name" placeholder="Enter Domain Name" required>
+                    </div>
+                {% end %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <input type="submit" class="btn btn-info" id="edit_profile" formaction="/extension" value="Extend"/>
+                    <div class="spinner-border text-secondary" role="status" style="margin-left: -1.5em !important;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                {% module xsrf_form_html() %}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if account_type == 'admin' %}
+<!-- Necessary condition so that user won't be able to hack through the form -->
+<div class="modal fade" id="addCreditModal" tabindex="-1" role="dialog" aria-labelledby="addCreditModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Add User Credit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form method="POST" class="dialog-form">
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Select User</label>
+                    <select id="user_details" class="form-control" onchange="showCredit({{ user_details }})">
+                        <option hidden disabled selected value> -- Select a user -- </option>
+                        {% for index,user in enumerate(user_details) %}
+                        <option value="{{ index }}">{{ user['username'] }}</option> 
+                        {% end %}
+                        <input type="hidden" name="target_username" value=""/>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="poc_credit">POC Credit</label>
+                    <input class="form-control" type="text" placeholder="Readonly input here…" value="-" id="poc_credit" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="credit_to_add">Credit To Add</label>
+                    <input type="number" class="form-control" id="credit_to_add" name="increment_value" placeholder="Enter The Number of Credit To Add" required>
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <input type="submit" class="btn btn-info" formaction="/add_credit" value="Add Credit" />
+                    <div class="spinner-border text-secondary" role="status" style="margin-left: -2.5em !important;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                {% module xsrf_form_html() %}
+            </form>
+        </div>
+    </div>
+</div>
+{% end %}
+
+
+
+<!-- <br><br>
 <h2>POC License</h2>
 <table>
     <tr>
@@ -120,15 +290,22 @@
     </tr>
     {% module xsrf_form_html() %}
 </form>
-</table>
+</table> -->
 
 </body>
 </html>
 
 <script>
-    function run(user_details) {
+    function showCredit(user_details) {
         var userIndex = document.getElementById("user_details").value;
-        document.getElementById("poc_credit").innerHTML = user_details[userIndex].pocLicenseCounter
+        document.getElementById("poc_credit").value = user_details[userIndex].pocLicenseCounter
         document.getElementsByName("target_username")[0].value = user_details[userIndex].username
     }
+
+    $(document).ready(function(){
+        $('form').submit(function(){
+            $('input[type=submit]').attr('disabled', true);
+            $(".spinner-border").css("display", "block");
+        });
+    });
 </script>

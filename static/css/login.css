@@ -14,8 +14,6 @@ body {
   background: linear-gradient(to right, #6befb8, #1CD8D2)
 }
 
-
-
 .form-signin {
   /* width: 100%;
   max-width: 330px;
@@ -58,10 +56,14 @@ body {
   border-top-right-radius: 0;
 }
 
-.btn-lg{
-    margin-top: 10px;
-    background-color: #1CD8D2;
-    border-color: #1CD8D2;
+.btn-lg,
+.btn-lg:focus,
+.btn-lg:disabled,
+.btn-lg:active,
+.btn-lg.active {
+  margin-top: 10px;
+  background-color: #1CD8D2;
+  border-color: #1CD8D2;
 }
 
 .btn-lg:hover{
@@ -80,3 +82,15 @@ body {
     color: lightseagreen;
     margin-bottom: 10px;
 }
+
+/* #validation_error{
+  color:red;
+} */
+
+/* .spinner-border{
+  margin-left: 2.5em !important;
+  margin-bottom: 3em;
+  margin-top: -2.5em;
+  position: absolute;
+  display: none;
+} */

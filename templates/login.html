@@ -1,13 +1,27 @@
 <html>
 <head>
 <title>Please Log In</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
-<link href="../static/css/login.css" rel="stylesheet">
+<link href="../static/css/login.css" rel="stylesheet" />
+<style>
+/* Honestly have no idea why I can't put this externally */
+.spinner-border{
+    margin-left: 11.5em !important;
+    margin-bottom: 3em;
+    margin-top: -2.5em;
+    position: absolute;
+    display: none;
+}
+
+#validation_error{
+  color:red;
+}
+</style>
 </head>
 
 <body class="text-center">
@@ -17,7 +31,10 @@
     
     <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
     <h2 class="h5 mb-3 font-weight-normal">Viscient Licensing Portal</h2>
-
+    {% if not credential_validated %}
+    <h2 class="h5 mb-3 font-weight-normal" id="validation_error">Invalid username or password!</h2>
+    {% end %}
+   
     <label for="username" class="sr-only">Email address</label>
     <input type="text" id="username" name="username" class="form-control" placeholder="Username" required autofocus> 
 
@@ -25,10 +42,22 @@
     <input type="password" id="password"  name="password" class="form-control" placeholder="Password" required>
 
     <button class="btn btn-lg btn-primary btn-block" type="submit">SIGN IN</button>
-    <button class="btn btn-light" type="button" >Need Help?</button>
+    <div class="spinner-border text-secondary" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <button class="btn btn-light" type="button">Need Help?</button>
     {% module xsrf_form_html() %}
 
 </form>
 </body>
 </html>
 
+
+<script>
+    $(document).ready(function(){
+        $('form').submit(function(){
+            $('button[type=submit]').attr('disabled', true);
+            $(".spinner-border").css("display", "block");
+        });
+    });
+</script>
