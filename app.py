@@ -27,8 +27,8 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @staticmethod
     def get_back_end_url():
-        return 'http://localhost:5000'
-        # return 'https://viscient-licensing-py-flask.herokuapp.com'
+        # return 'http://localhost:5000'
+        return 'https://viscient-licensing-py-flask.herokuapp.com'
     
     @staticmethod
     def set_headers():
