@@ -18,7 +18,7 @@
     display: none;
 }
 
-#validation_error{
+#error_element{
   color:red;
 }
 </style>
@@ -32,7 +32,11 @@
     <h1 class="h3 mb-3 font-weight-normal">Sign in</h1>
     <h2 class="h5 mb-3 font-weight-normal">Viscient Licensing Portal</h2>
     {% if not credential_validated %}
-    <h2 class="h5 mb-3 font-weight-normal" id="validation_error">Invalid username or password!</h2>
+    <h2 class="h5 mb-3 font-weight-normal" id="error_element">Invalid username or password!</h2>
+    {% end %}
+
+    {% if server_error %}
+    <h2 class="h5 mb-3 font-weight-normal" id="error_element">An error has occured, please try again later.</h2>
     {% end %}
    
     <label for="username" class="sr-only">Email address</label>

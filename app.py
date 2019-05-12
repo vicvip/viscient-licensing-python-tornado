@@ -61,55 +61,49 @@ class MainHandler(BaseHandler):
                 f'{self.get_back_end_url()}/licensing/query_licensing?username=test', headers=json.loads(self.set_headers())
             )
             deserealized_query_license_body = json.loads(query_license_response.body)
-            responseCode = deserealized_query_license_body['status_code']
-            #if(responseCode is not 200):
-                #handle this somehow...?
-            
             license_details = deserealized_query_license_body['license']
-            #print(deserealized_query_license_body['status_code'])
         except Exception as e:
-            print('Server error with query_license: ' + e)
+            print('Server error with query_license: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
         
         try:
             history_details_response = yield client.fetch(
-                f'{self.get_back_end_url()}/mongodbservice/history?username={username}&accountType={account_type}', headers=json.loads(self.set_headers()))
+                f'{self.get_back_end_url()}/mongodbservice/history?username={username}&accountType={account_type}', headers=json.loads(self.set_headers())
+            )
             deserealized_history_details_body = json.loads(history_details_response.body)
-            responseCode = deserealized_history_details_body['status_code']
-            #print(history_details_response.body)
-            #if(responseCode is not 200):
-                #handle this somehow...?
-            
             history_details = deserealized_history_details_body['history_details']
+
             for history in history_details:
                 history['dateCreated'] = self.convert_date_to_local(history['dateCreated'])
                 history['dateExpired'] = self.convert_date_to_local(history['dateExpired'])
-            #print(history_details)
         except Exception as e:
-            print('Server error with history:' + e)
+            print('Server error with history: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
 
         try:
             user_counter_response = yield client.fetch(
-                f'{self.get_back_end_url()}/mongodbservice/user_counter?username={username}', headers=json.loads(self.set_headers()))
+                f'{self.get_back_end_url()}/mongodbservice/user_counter?username={username}', headers=json.loads(self.set_headers())
+            )
             deserealized_user_counter_body = json.loads(user_counter_response.body)
-            responseCode = deserealized_user_counter_body['status_code']
-            #if(responseCode is not 200):
-                #handle this somehow...?
-            
             user_counter = deserealized_user_counter_body['poc_counter']
         except Exception as e:
-            print('Server error with user counter: ' + e)
+            print('Server error with user counter: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
 
         if(account_type == 'admin'):
             try:
-                user_details_response = yield client.fetch(f'{self.get_back_end_url()}/mongodbservice/all_user', headers=json.loads(self.set_headers()))
+                user_details_response = yield client.fetch(
+                    f'{self.get_back_end_url()}/mongodbservice/all_user', headers=json.loads(self.set_headers())
+                )
                 deserealized_user_details_body = json.loads(user_details_response.body)
-                responseCode = deserealized_user_details_body['status_code']
-                #if(responseCode is not 200):
-                    #handle this somehow...?
-                
                 user_details = deserealized_user_details_body['user_details']
             except:
-                 print('Server error with user details:' + e)
+                print('Server error with all users: ')
+                print(e)
+                self.render('login.html', credential_validated=True, server_error=True)
 
         self.render('index.html', license_details=license_details, history_details=history_details, user_counter=user_counter, user_details=user_details, account_type=account_type)
 
@@ -120,7 +114,7 @@ class LoginHandler(BaseHandler):
         if incorrect and int(incorrect) > 20:
             self.write('<center>blocked</center>')
             return
-        self.render('login.html', credential_validated=True)
+        self.render('login.html', credential_validated=True, server_error=False)
 
     @tornado.gen.coroutine
     def post(self):
@@ -147,7 +141,6 @@ class LoginHandler(BaseHandler):
             )
             deserealized_login_body = json.loads(login_response.body)
             responseCode = deserealized_login_body['status_code']
-            #print(responseCode)
         except Exception as e:
             print(f'Server error: {e}')
 
@@ -160,7 +153,7 @@ class LoginHandler(BaseHandler):
             self.redirect(self.reverse_url("main"))
         else:
             self.clear_cookie("user")
-            self.render('login.html', credential_validated=False)
+            self.render('login.html', credential_validated=False, server_error=False)
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -189,11 +182,10 @@ class ActivationHandler(BaseHandler):
                 f'{self.get_back_end_url()}/licensing/activation', method='POST', body=body,
                 headers=json.loads(self.set_headers())
             )
-            #deserealized_activation_body = json.loads(activation_response.body)
-            #responseCode = deserealized_activation_body['status_code']
-            #print(responseCode)
         except Exception as e:
-            print(f'Server error with activation: {e}')
+            print('Server error with activation: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
 
         self.redirect(self.reverse_url("main"))
 
@@ -216,16 +208,14 @@ class ExtensionHandler(BaseHandler):
 
         try:
             extension_response = yield client.fetch(
-            f'{self.get_back_end_url()}/licensing/extension', method='POST', body=body,
-            headers=json.loads(self.set_headers())
+                f'{self.get_back_end_url()}/licensing/extension', method='POST', body=body,
+                headers=json.loads(self.set_headers())
             )
-            deserealized_extension_body = json.loads(extension_response.body)
-            #responseCode = deserealized_activation_body['status_code']
-            #print(deserealized_extension_body)
         except Exception as e:
-            print(f'Server error with extension: {e}')
+            print('Server error with extension: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
             
-        #print(self)
         self.redirect(self.reverse_url("main"))
 
 class AddCreditHandler(BaseHandler):
@@ -236,7 +226,6 @@ class AddCreditHandler(BaseHandler):
         increment_value = tornado.escape.xhtml_escape(self.get_argument("increment_value")) 
         target_username = tornado.escape.xhtml_escape(self.get_argument("target_username"))
 
-        #print(target_username)
         body = json.dumps({
             "username": target_username,
             "increment_value": int(increment_value)
@@ -244,14 +233,13 @@ class AddCreditHandler(BaseHandler):
 
         try:
             extension_response = yield client.fetch(
-            f'{self.get_back_end_url()}/mongodbservice/increment_user_credit', method='POST', body=body,
-            headers=json.loads(self.set_headers())
+                f'{self.get_back_end_url()}/mongodbservice/increment_user_credit', method='POST', body=body,
+                headers=json.loads(self.set_headers())
             )
-            deserealized_extension_body = json.loads(extension_response.body)
-            #responseCode = deserealized_activation_body['status_code']
-            #print(deserealized_extension_body)
         except Exception as e:
-            print(f'Server error with extension: {e}')
+            print('Server error with add credit: ')
+            print(e)
+            self.render('login.html', credential_validated=True, server_error=True)
 
         self.redirect(self.reverse_url("main"))
 
