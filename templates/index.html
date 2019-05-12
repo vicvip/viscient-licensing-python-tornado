@@ -5,6 +5,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!-- <script src="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css"></script> -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.13/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+<!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"> -->
+
+<!-- https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css -->
+<script src="https://code.iconify.design/1/1.0.2/iconify.min.js"></script>
 
 <link href="../static/css/index.css" rel="stylesheet" />
 </head>
@@ -78,14 +88,14 @@
         <div class="col-sm-8">
             <h3>History</h3>
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped" id="historyTable" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th>Date Created</th>
-                            <th>User</th>
-                            <th>Action Type</th>
-                            <th>Domain Name</th>
-                            <th>Expiry Date</th>
+                            <th>Date Created <span class="iconify" data-icon="fa-solid:sort"></span></th>
+                            <th>User <span class="iconify" data-icon="fa-solid:sort"></span></th>
+                            <th>Action Type <span class="iconify" data-icon="fa-solid:sort"></span></th>
+                            <th>Domain Name <span class="iconify" data-icon="fa-solid:sort"></span></th>
+                            <th>Expiry Date <span class="iconify" data-icon="fa-solid:sort"></span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -329,6 +339,11 @@
     }
 
     $(document).ready(function(){
+        $('#historyTable').DataTable({
+            "bFilter": false, //Disable search function
+            "sDom": 't',
+        });
+            
         $('form').submit(function(){
             $('input[type=submit]').attr('disabled', true);
             $(".spinner-border").css("display", "block");
